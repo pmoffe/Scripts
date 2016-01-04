@@ -2,14 +2,13 @@
 ### To Manually find a URL for a storage polociy, run "Search-Cloud -querytype AdminOrgVdcStorageProfile -Name "PHL_07_HAS_QVol" | get-ciview -viewlevel admin | select Href"
 
 # Enter VM Name:
-$uservm = "HA-Mgmt-Veeam-00"
+$uservm = Read-Host -Prompt 'What is the name of the VM you want to modify?'
 
 # Enter Hard Disk to change:
-$harddisk = "Hard Disk 3"
+$harddisk = Read-Host -Prompt "What hard-disk on '$uservm' do you want to modify?"
 
 # Enter StoragePolicy Name:
-$StoragePolicy = "PHL_07_HAS_QVol"
-
+$StoragePolicy = Read-Host -Prompt "What storage policy do you want to assign to '$harddisk' on '$uservm'?"
 
 ##
 # Don't change anything below this line
