@@ -1,4 +1,4 @@
-#Connect to NetApp as admin
+# Connect to NetApp as admin
 Write-Host "Connecting to $filer..." -foregroundcolor "green"
 Connect-NcController $filer -Credential $cred -vserver $cust_svm | Out-Null
 
