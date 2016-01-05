@@ -1,0 +1,5 @@
+﻿narootpasswd=somepassword
+notifyto=you@there.com,me@here.com
+notifyfrom=yourscript@overthere.com
+filers=10.10.10.10,20.20.20.20,30.30.30.30
+smtpserver=1.2.3.4
