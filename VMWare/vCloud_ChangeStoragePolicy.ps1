@@ -1,5 +1,5 @@
-## Storage Policy Variables
-### To Manually find a URL for a storage polociy, run "Search-Cloud -querytype AdminOrgVdcStorageProfile -Name "PHL_07_HAS_QVol" | get-ciview -viewlevel admin | select Href"
+### Note:
+### To Manually find a URL for a storage polociy, run "Search-Cloud -querytype AdminOrgVdcStorageProfile -Name "<storage-plicy-name>" | get-ciview -viewlevel admin | select Href"
 
 # Enter VM Name:
 $uservm = Read-Host -Prompt 'What is the name of the VM you want to modify?'
@@ -10,13 +10,20 @@ $harddisk = Read-Host -Prompt "What hard-disk on '$uservm' do you want to modify
 # Enter StoragePolicy Name:
 $StoragePolicy = Read-Host -Prompt "What storage policy do you want to assign to '$harddisk' on '$uservm'?"
 
-##
-# Don't change anything below this line
-##
+# Load Config File
+    #File with the stored data
+        $ConfigFile = ".\VMware.config"
+    #Creating an empty hash table
+        $ConfigKeys = @{}
+    #Pulling, separating, and storing the values in $Config
+        Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
+            $Keys = $_ -split "="
+            $Config += @{$Keys[0]=$Keys[1]}
+        }
 
 # Connect to vCloud Director
 
-try { Connect-CIServer -Server vdc.haservices.com -ErrorAction Stop }
+try { Connect-CIServer -Server $config.vcd -ErrorAction Stop }
 catch { throw 'Could not connect to vCloud'}
 
 # Get Storage Policy API URL

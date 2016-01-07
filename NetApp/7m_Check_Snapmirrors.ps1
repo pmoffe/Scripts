@@ -1,10 +1,10 @@
-# Set variables
+# Load Config File
     #File with the stored data
-        $ConfigFile = .\7m_Check_Snapmirror.config
+        $ConfigFile = ".\NetApp.config"
     #Creating an empty hash table
-        $ConfigKeys = @{}
-    #Pulling, separating, and storing the values in $ConfigKey
-        Get-Content $ConfigFile | ForEach-Object {
+		$Config = @{}
+    #Pulling, separating, and storing the values in $Config
+        Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
             $Keys = $_ -split "="
             $Config += @{$Keys[0]=$Keys[1]}
         }
@@ -17,7 +17,7 @@ $password = ConvertTo-SecureString $config.narootpasswd -AsPlainText -Force
 $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "root",$password
 
 # Pull the data
-$filers = $config.filers -split ","
+$filers = $config.sm7mfilers -split ","
 $notifyto = $config.notifyto -split ","
 
 $smstatus = ForEach ($filer in $filers) {
@@ -30,7 +30,7 @@ $smstatus = ForEach ($filer in $filers) {
         #For each vFiler, print snapmirrors with LagTime > 1.25 days.
         ForEach ($vfiler in $vfilers) {
 		    Connect-NaController $filer -vfiler "$vfiler" | Out-Null
-		    Get-NaSnapmirror -WarningAction SilentlyContinue | Select DestinationLocation,SourceLocation,LagTime,LagTimeTS | Where-Object {$_.LagTime -gt '108000'} | Select DestinationLocation,SourceLocation,LagTimeTS
+		    Get-NaSnapmirror -WarningAction SilentlyContinue | Select DestinationLocation,SourceLocation,LagTime,LagTimeTS | Where-Object {$_.LagTime -gt $config.smlag} | Select DestinationLocation,SourceLocation,LagTimeTS
 		}
 }
 

@@ -1,17 +1,17 @@
-## Variables: Update these to the match the environment
-$Cluster = Read-Host -Prompt 'What Cluster are you adding VMs to (PHL-01, PHL-14 or PHX-55)?'
+# User Input
+$Cluster = Read-Host -Prompt 'What vCenter Cluster are you adding VMs to?'
 $Datastores = Read-Host -Prompt 'What is the name of the datastore you want the VMs added from?'
 
-$VMFolder = "Temp"
-
-#-----------------------------------------
-#No configurable variables past this point
-#-----------------------------------------
-
-#Set vCenter IP based on site Cluster
-if($Cluster -eq "PHL-01") {$vcenterip = "10.30.0.19" }
-if($Cluster -eq "PHL-14") {$vcenterip = "10.30.0.19" }
-if($Cluster -eq "PHX-55") {$vcenterip = "10.35.0.19" }
+# Load Config File
+    #File with the stored data
+        $ConfigFile = ".\VMware.config"
+    #Creating an empty hash table
+        $ConfigKeys = @{}
+    #Pulling, separating, and storing the values in $Config
+        Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
+            $Keys = $_ -split "="
+            $Config += @{$Keys[0]=$Keys[1]}
+        }
 
 # Import modules
 $powercli = Get-PSSnapin -Name VMware.VimAutomation.Core -Registered
@@ -39,7 +39,7 @@ try { Connect-VIServer $vcenterip -ErrorAction Stop }
 catch { throw 'Could not connect to vCenter'}
 
 # Select an ESXi host to own the VMX files for the import process:
-$ESXHost = Get-Cluster $Cluster | Get-VMHost | select -First 1
+$ESXHost = Get-Cluster $Config.$Cluster | Get-VMHost | select -First 1
 
 ##Add .VMX (Virtual Machines) to Inventory from Datastore
 foreach($Datastore in $Datastores) {
@@ -55,6 +55,6 @@ foreach($Datastore in $Datastores) {
      
     # Register all .VMX files with vCenter
     foreach($VMXFile in $SearchResult) {
-        New-VM -VMFilePath $VMXFile -VMHost $ESXHost -Location $VMFolder -RunAsync
+        New-VM -VMFilePath $VMXFile -VMHost $ESXHost -Location $config.VMFolder -RunAsync
     }
 }

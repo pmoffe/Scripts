@@ -1,17 +1,18 @@
-﻿## Variables: Update these to the match the environment
-$Cluster = Read-Host -Prompt 'What Cluster are you adding VMs to (PHL-01, PHL-14 or PHX-55)?'
+﻿## Variables
+$Cluster = Read-Host -Prompt 'What Cluster are you adding VMs to?'
 $HAVMrestartold = Read-Host -Prompt 'How many days of history do you want searched?'
-
-
-#-----------------------------------------
-#No configurable variables past this point
-#-----------------------------------------
 $Date = Get-Date    #Today's date, don't change
 
-#Set vCenter IP based on site Cluster
-if($Cluster -eq "PHL-01") {$vcenterip = "10.30.0.19" }
-if($Cluster -eq "PHL-14") {$vcenterip = "10.30.0.19" }
-if($Cluster -eq "PHX-55") {$vcenterip = "10.35.0.19" }
+# Load Config File
+    #File with the stored data
+        $ConfigFile = ".\VMware.config"
+    #Creating an empty hash table
+        $ConfigKeys = @{}
+    #Pulling, separating, and storing the values in $Config
+        Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
+            $Keys = $_ -split "="
+            $Config += @{$Keys[0]=$Keys[1]}
+        }
 
 # Import modules
 $powercli = Get-PSSnapin -Name VMware.VimAutomation.Core -Registered
@@ -35,17 +36,22 @@ catch { throw 'Could not load the required VMware.VimAutomation.Vds cmdlets'}
 $null = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -DisplayDeprecationWarnings:$false -Scope User -Confirm:$false
 
 # Connect to vCenter
-try { Connect-VIServer $vcenterip -ErrorAction Stop }
+try { Connect-VIServer $config.$cluster -ErrorAction Stop }
 catch { throw 'Could not connect to vCenter'}
 
 # Get VM Restart Events
 #Get-VIEvent -maxsamples 100000 -Start ($Date).AddDays(-$HAVMrestartold) -type warning | Where {$_.FullFormattedMessage -match "restarted"} |select CreatedTime,FullFormattedMessage |sort CreatedTime -Descending
 $VMs = Get-VIEvent -maxsamples 100000 -Start ($Date).AddDays(-$HAVMrestartold) -type warning | Where {$_.EventTypeId -match "com.vmware.vc.ha.VmRestartedByHAEvent"} #| select CreatedTime,ObjectName
 
-# Add ResourceGroup column - This is why the script takes so long to run
-$body = ForEach ($VM in $VMs){
-    get-vm -name $VM.ObjectName | select name, @{n="ResourcePool"; e={$_ | Get-ResourcePool}} | add-member -membertype NoteProperty -name EventTime -Value $VM.CreatedTime -PassThru
-    }
+if ($VMs) {
+	# Add ResourceGroup column - This is why the script takes so long to run
+	$body = ForEach ($VM in $VMs){
+		get-vm -name $VM.ObjectName | select name, @{n="ResourcePool"; e={$_ | Get-ResourcePool}} | add-member -membertype NoteProperty -name EventTime -Value $VM.CreatedTime -PassThru
+		}
+	}
+else {Send-MailMessage -From $config.notifyfrom -To $config.notifyto -Subject "No VMs restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $config.smtpserver
+	exit
+	}
 
 # Remove UUID - Currently not working -
 $output = $body # -replace '\(([^)]+)\)',''
@@ -61,8 +67,8 @@ if ($output) {
    
     $htmlbody = $output | ConvertTo-Html -Head $style | Out-String 
     
-    Send-MailMessage -From "mgraham@haservices.com" -To mgraham@haservices.com,rwojewoda@haservices.com,jbarry@haservices.com -Subject "VMs Restarted by vSphere HA in the past 24 hours" -SmtpServer 207.46.163.138 -BodyAsHtml $htmlbody
+    Send-MailMessage -From $config.notifyfrom -To $config.notifyto -Subject "VMs Restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $config.smtpserver -BodyAsHtml $htmlbody
     }
 else {
-    Send-MailMessage -From "mgraham@haservices.com" -To mgraham@haservices.com -Subject "Something went wrong w/HA restart script" -SmtpServer 207.46.163.138 -BodyAsHtml $htmlbody
+    Send-MailMessage -From $config.notifyfrom -To $config.notifyto -Subject "Something went wrong w/the vSphere HA restart script" -SmtpServer $config.smtpserver -BodyAsHtml $htmlbody
     }

@@ -1,0 +1,10 @@
+﻿### 7Mode Root password
+narootpasswd=somepassword
+### SMTP Configuration
+notifyto=you@there.com,me@here.com
+notifyfrom=yourscript@overthere.com
+smtpserver=1.2.3.4
+### Filers for 7m_Check_Snapmirrors.ps1 script
+sm7mfilers=10.10.10.10,20.20.20.20,30.30.30.30
+### SnapMirror Lag Threshold in seconds
+smlag=108000
