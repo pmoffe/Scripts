@@ -22,9 +22,10 @@ $StoragePolicy = Read-Host -Prompt "What storage policy do you want to assign to
         }
 
 # Connect to vCloud Director
-
-try { Connect-CIServer -Server $config.vcd -ErrorAction Stop }
-catch { throw 'Could not connect to vCloud'}
+if ($global:DefaultCIServers.name -ne $config.ciserver) {
+	try { Connect-CIServer -Server $config.ciserver -ErrorAction Stop }
+		catch { throw 'Could not connect to vCloud'}
+	}
 
 # Get Storage Policy API URL
 $StoragePolicyURL = Search-Cloud -querytype AdminOrgVdcStorageProfile -Name $StoragePolicy | get-ciview -viewlevel admin | select Href
