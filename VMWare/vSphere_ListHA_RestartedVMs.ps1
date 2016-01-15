@@ -1,43 +1,16 @@
 ﻿## Variables
-$Cluster = Read-Host -Prompt 'What Cluster are you adding VMs to?'
+$Cluster = Read-Host -Prompt 'What Cluster are you inquiring about?'
 $HAVMrestartold = Read-Host -Prompt 'How many days of history do you want searched?'
 $Date = Get-Date    #Today's date, don't change
 
-# Load Config File
-    #File with the stored data
-        $ConfigFile = ".\VMware.config"
-    #Creating an empty hash table
-        $ConfigKeys = @{}
-    #Pulling, separating, and storing the values in $Config
-        Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
-            $Keys = $_ -split "="
-            $Config += @{$Keys[0]=$Keys[1]}
-        }
+# Import custom VMWare Functions
+Import-Module $PSScriptRoot\VMWare_Functions.psm1
 
-# Import modules
-$powercli = Get-PSSnapin -Name VMware.VimAutomation.Core -Registered
-try {
- switch ($powercli.Version.Major) {
-    { $_ -ge 6 }
-        { Import-Module -Name VMware.VimAutomation.Core -ErrorAction Stop
-        Write-Host -Object 'PowerCLI 6+ module imported'
-        }
-    5 { Add-PSSnapin -Name VMware.VimAutomation.Core -ErrorAction Stop
-        Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version'
-        }
-    default {
-        throw 'This script requires PowerCLI version 5 or later'
-        }
-    }
-}
-catch { throw 'Could not load the required VMware.VimAutomation.Vds cmdlets'}
-
-# Ignore self-signed SSL certificates for vCenter Server
-$null = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -DisplayDeprecationWarnings:$false -Scope User -Confirm:$false
+# Load VMWare Configuration File
+Get-VMWConfig
 
 # Connect to vCenter
-try { Connect-VIServer $config.$cluster -ErrorAction Stop }
-catch { throw 'Could not connect to vCenter'}
+Connect-vSphere $Global:vmwconfig.$cluster
 
 # Get VM Restart Events
 #Get-VIEvent -maxsamples 100000 -Start ($Date).AddDays(-$HAVMrestartold) -type warning | Where {$_.FullFormattedMessage -match "restarted"} |select CreatedTime,FullFormattedMessage |sort CreatedTime -Descending
@@ -49,7 +22,7 @@ if ($VMs) {
 		get-vm -name $VM.ObjectName | select name, @{n="ResourcePool"; e={$_ | Get-ResourcePool}} | add-member -membertype NoteProperty -name EventTime -Value $VM.CreatedTime -PassThru
 		}
 	}
-else {Send-MailMessage -From $config.notifyfrom -To $config.notifyto -Subject "No VMs restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $config.smtpserver
+else {Send-MailMessage -From $global:vmwconfig.notifyfrom -To $global:vmwconfig.notifyto -Subject "No VMs restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $global:vmwconfig.smtpserver
 	exit
 	}
 
@@ -67,8 +40,8 @@ if ($output) {
    
     $htmlbody = $output | ConvertTo-Html -Head $style | Out-String 
     
-    Send-MailMessage -From $config.notifyfrom -To $config.notifyto -Subject "VMs Restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $config.smtpserver -BodyAsHtml $htmlbody
+    Send-MailMessage -From $global:vmwconfig.notifyfrom -To $global:vmwconfig.notifyto -Subject "VMs Restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $global:vmwconfig.smtpserver -BodyAsHtml $htmlbody
     }
 else {
-    Send-MailMessage -From $config.notifyfrom -To $config.notifyto -Subject "Something went wrong w/the vSphere HA restart script" -SmtpServer $config.smtpserver -BodyAsHtml $htmlbody
+    Send-MailMessage -From $global:vmwconfig.notifyfrom -To $global:vmwconfig.notifyto -Subject "Something went wrong w/the vSphere HA restart script" -SmtpServer $global:vmwconfig.smtpserver -BodyAsHtml $htmlbody
     }
