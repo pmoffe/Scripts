@@ -19,7 +19,7 @@ if ($global:DefaultVIServers.name -ne $config.$cluster) {
 		catch { throw 'Could not connect to vCenter'}
 	}
 
-	if ($global:DefaultCIServers.name -ne $config.ciserver) {
+if ($global:DefaultCIServers.name -ne $config.ciserver) {
 	try { Connect-CIServer -Server $config.ciserver -ErrorAction Stop }
 		catch { throw 'Could not connect to vCloud'}
 	}
