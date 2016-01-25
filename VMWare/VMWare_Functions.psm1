@@ -18,7 +18,7 @@ function Connect-VSphere ($viserver) {
 	 switch ($powercli.Version.Major) {
 		{ $_ -ge 6 }
 			{ Import-Module -Name VMware.VimAutomation.Core -ErrorAction Stop
-			Write-Output -Object 'PowerCLI 6+ module imported'
+			Write-Output "PowerCLI 6+ module imported"
 			}
 		5 { Add-PSSnapin -Name VMware.VimAutomation.Core -ErrorAction Stop
 			Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version'
