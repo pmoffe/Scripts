@@ -6,7 +6,7 @@ $Datastores = Read-Host -Prompt 'What is the name of the datastore you want the 
     #File with the stored data
         $ConfigFile = ".\VMware.config"
     #Creating an empty hash table
-        $ConfigKeys = @{}
+        $Config = @{}
     #Pulling, separating, and storing the values in $Config
         Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
             $Keys = $_ -split "="
@@ -19,7 +19,7 @@ try {
  switch ($powercli.Version.Major) {
     { $_ -ge 6 }
         { Import-Module -Name VMware.VimAutomation.Core -ErrorAction Stop
-        Write-Host -Object 'PowerCLI 6+ module imported'
+        Write-Output "PowerCLI 6+ module imported"
         }
     5 { Add-PSSnapin -Name VMware.VimAutomation.Core -ErrorAction Stop
         Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version'
@@ -39,19 +39,19 @@ try { Connect-VIServer $vcenterip -ErrorAction Stop }
 catch { throw 'Could not connect to vCenter'}
 
 # Select an ESXi host to own the VMX files for the import process:
-$ESXHost = Get-Cluster $Config.$Cluster | Get-VMHost | select -First 1
+$ESXHost = Get-Cluster $Config.$Cluster | Get-VMHost | Select-Object -First 1
 
 ##Add .VMX (Virtual Machines) to Inventory from Datastore
 foreach($Datastore in $Datastores) {
     # Searches for .VMX Files in datastore variable
-    $ds = Get-Datastore -Name $Datastore | %{Get-View $_.Id}
+    $ds = Get-Datastore -Name $Datastore | ForEach-Object {Get-View $_.Id}
     $SearchSpec = New-Object VMware.Vim.HostDatastoreBrowserSearchSpec
     $SearchSpec.matchpattern = "*.vmx"
     $dsBrowser = Get-View $ds.browser
     $DatastorePath = "[" + $ds.Summary.Name + "]"
      
     # Find all .VMX file paths in Datastore variable and filters out .snapshot
-    $SearchResult = $dsBrowser.SearchDatastoreSubFolders($DatastorePath, $SearchSpec) | where {$_.FolderPath -notmatch ".snapshot"} | %{$_.FolderPath + ($_.File | select Path).Path}
+    $SearchResult = $dsBrowser.SearchDatastoreSubFolders($DatastorePath, $SearchSpec) | Where-Object {$_.FolderPath -notmatch ".snapshot"} | ForEach-Object {$_.FolderPath + ($_.File | Select-Object Path).Path}
      
     # Register all .VMX files with vCenter
     foreach($VMXFile in $SearchResult) {

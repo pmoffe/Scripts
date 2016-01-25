@@ -30,7 +30,7 @@ $smstatus = ForEach ($filer in $filers) {
         #For each vFiler, print snapmirrors with LagTime > 1.25 days.
         ForEach ($vfiler in $vfilers) {
 		    Connect-NaController $filer -vfiler "$vfiler" | Out-Null
-		    Get-NaSnapmirror -WarningAction SilentlyContinue | Select DestinationLocation,SourceLocation,LagTime,LagTimeTS | Where-Object {$_.LagTime -gt $config.smlag} | Select DestinationLocation,SourceLocation,LagTimeTS
+		    Get-NaSnapmirror -WarningAction SilentlyContinue | Select-Object DestinationLocation,SourceLocation,LagTime,LagTimeTS | Where-Object {$_.LagTime -gt $config.smlag} | Select-Object DestinationLocation,SourceLocation,LagTimeTS
 		}
 }
 
