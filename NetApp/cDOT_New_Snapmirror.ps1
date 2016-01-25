@@ -26,6 +26,7 @@ if($site_id -eq "PHX-55") {$filer = "10.35.0.90" }
 #Run initial checks
 if(-not $site_id -or -not $cust_id -or -not $cust_svm -or -not $agg) {
 	Write-Host "Problem with Variables, I quit." -foregroundcolor "red"
+	exit
 	}
 
 #Load the DataONTAP Module
