@@ -117,8 +117,8 @@ Write-Host "Loading Internal Variables..." -foregroundcolor "green"
 $svm_name = "$site_id-$cust_id" + "-$cust_svm_name"
 $svm_root_vol = $svm_name + "_root" -replace "-", "_"
 $ClusterNodes = get-ncClusterNode
-$ClusterNode0 = get-ncclusternode | where-object {$_.NodeName -like "*c00n00"} | select NodeName
-$ClusterNode1 = get-ncclusternode | where-object {$_.NodeName -like "*c00n01"} | select NodeName
+$ClusterNode0 = get-ncclusternode | where-object {$_.NodeName -like "*c00n00"} | Select-Object NodeName
+$ClusterNode1 = get-ncclusternode | where-object {$_.NodeName -like "*c00n01"} | Select-Object NodeName
 
 #Create VLAN
 $check_vlan = Get-NcNetPortVlan | Where-Object {$_.InterfaceName -match $cust_vlan_id}
