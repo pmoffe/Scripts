@@ -10,7 +10,7 @@ Import-Module $PSScriptRoot\VMWare_Functions.psm1
 Get-VMWConfig
 
 # Connect to vCenter
-Connect-vSphere $Global:vmwconfig.$cluster
+Connect-vSphere -viserver $Global:vmwconfig.$cluster
 
 # Get VM Restart Events
 #Get-VIEvent -maxsamples 100000 -Start ($Date).AddDays(-$HAVMrestartold) -type warning | Where {$_.FullFormattedMessage -match "restarted"} |select CreatedTime,FullFormattedMessage |sort CreatedTime -Descending
@@ -19,7 +19,7 @@ $VMs = Get-VIEvent -maxsamples 100000 -Start ($Date).AddDays(-$HAVMrestartold) -
 if ($VMs) {
 	# Add ResourceGroup column - This is why the script takes so long to run
 	$body = ForEach ($VM in $VMs){
-		get-vm -name $VM.ObjectName | select name, @{n="ResourcePool"; e={$_ | Get-ResourcePool}} | add-member -membertype NoteProperty -name EventTime -Value $VM.CreatedTime -PassThru
+		get-vm -name $VM.ObjectName | Select-Object name, @{n="ResourcePool"; e={$_ | Get-ResourcePool}} | add-member -membertype NoteProperty -name EventTime -Value $VM.CreatedTime -PassThru
 		}
 	}
 else {Send-MailMessage -From $global:vmwconfig.notifyfrom -To $global:vmwconfig.notifyto -Subject "No VMs restarted by vSphere HA in the past $HAVMrestartold day(s)" -SmtpServer $global:vmwconfig.smtpserver

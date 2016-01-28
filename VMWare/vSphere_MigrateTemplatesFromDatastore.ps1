@@ -10,10 +10,10 @@ Import-Module $PSScriptRoot\VMWare_Functions.psm1
 Get-VMWConfig
 
 # Connect to vCenter
-Connect-vSphere $Global:vmwconfig.$cluster
+Connect-vSphere -viserver $Global:vmwconfig.$cluster
 
 # Find templates in datastore
-$templates = get-datastore $SrcDatastore | Get-template | select name
+$templates = get-datastore $SrcDatastore | Get-template | Select-Object name
 
 # Move templates to new datastore
 foreach ($template in $templates.name) {

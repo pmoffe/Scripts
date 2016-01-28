@@ -3,26 +3,18 @@ $Cluster = Read-Host -Prompt 'What vCenter Cluster are you importing from?'
 $orgvdc = Read-Host -Prompt 'What Org vDC are you importing to?'
 #$cinetwork = Read-Host -Prompt 'What Org VDC Network should these VMs belong to?'
 
-# Load Config File
-    #File with the stored data
-        $ConfigFile = ".\VMware.config"
-    #Creating an empty hash table
-        $ConfigKeys = @{}
-    #Pulling, separating, and storing the values in $Config
-        Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
-            $Keys = $_ -split "="
-            $Config += @{$Keys[0]=$Keys[1]}
-        }
+# Import custom VMWare Functions
+Import-Module $PSScriptRoot\VMWare_Functions.psm1
 
-if ($global:DefaultVIServers.name -ne $config.$cluster) {
-	try { Connect-VIServer -Server $config.$cluster -ErrorAction Stop }
-		catch { throw 'Could not connect to vCenter'}
-	}
+# Load VMWare Configuration File
+Get-VMWConfig
 
-if ($global:DefaultCIServers.name -ne $config.ciserver) {
-	try { Connect-CIServer -Server $config.ciserver -ErrorAction Stop }
-		catch { throw 'Could not connect to vCloud'}
-	}
+# Connect to vCenter
+Connect-vSphere -viserver $Global:vmwconfig.$cluster
+
+# Connect to vCloud Director
+Connect-vCloud -ciserver $Global:vmwconfig.ciserver
+
 
 $vms = get-folder $config.VMImportFolder | get-vm
 
