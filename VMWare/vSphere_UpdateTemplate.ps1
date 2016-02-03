@@ -129,7 +129,7 @@ do {
 until (Get-VM -Name $VMName | Where-Object { $_.powerstate -eq "PoweredOff" } )
 
 # Set note with last updated date
-Set-VM -VM $VMName -Notes "VM Last Updated $(Get-Date)" -Confirm:$false
+Set-VM -VM $VMName -Notes "VM Last Updated $(Get-Date)" -Confirm:$false | Out-Null
 
 If ($WasTemplate) { 
 	Write-Output "Converting $VMName to template"
