@@ -1,10 +1,9 @@
 function Get-VMWConfig {
-	# Load Config File
-	#File with the stored data
+	# File with the stored data
 		$ConfigFile = "$PSScriptRoot\VMware.config"
-	#Creating an empty hash table
+	# Creating an empty hash table
 		$global:vmwconfig = @{}
-	#Pulling, separating, and storing the values in $Config
+	# Pulling, separating, and storing the values in $Global:vmwconfig
 		Get-Content $ConfigFile | Where-Object { $_ -notmatch '^#.*' } | ForEach-Object {
 			$Keys = $_ -split "="
 			$global:vmwconfig += @{$Keys[0]=$Keys[1]}
@@ -15,7 +14,7 @@ function Connect-VSphere {
 	Param (
         $viserver
         )
-    
+
     # Import VIM module
 	$powercli = Get-PSSnapin -Name VMware.VimAutomation.Core -Registered
 	try {
@@ -39,7 +38,7 @@ function Connect-VSphere {
 
 	# Connect to vCenter if not already connected
 	if ($global:DefaultVIServers.name -ne $viserver) {
-		try { Connect-VIServer -Server $viserver -ErrorAction Stop }
+		try { Connect-VIServer -Server $viserver -ErrorAction Stop | Out-Null }
 			catch { throw 'Could not connect to vCenter'}
 		}
 }
@@ -58,20 +57,20 @@ function Connect-VCloud {
 		5 {
             Add-PSSnapin -Name VMware.VimAutomation.Vds -ErrorAction Stop
             Add-PSSnapin -Name VMware.VimAutomation.Cloud -ErrorAction Stop
-			Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version'
+			Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version. This has not been tested!'
 			}
 		default {
 			throw 'This script requires PowerCLI version 5 or later'
 			}
 		}
 	}
-	catch { throw 'Could not load the required VMware.VimAutomation.Vds cmdlets'}
+	catch { throw 'Could not load the required VMware.VimAutomation cmdlets'}
 
 	# Ignore self-signed SSL certificates for vCenter Server
 	$null = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -DisplayDeprecationWarnings:$false -Scope User -Confirm:$false
 
     if ($global:DefaultCIServers.name -ne $ciserver) {
-	    try { Connect-CIServer -Server $ciserver -ErrorAction Stop }
+	    try { Connect-CIServer -Server $ciserver -ErrorAction Stop | Out-Null }
 		    catch { throw 'Could not connect to vCloud'}
     }
 }
