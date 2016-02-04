@@ -3,8 +3,6 @@ Cluster1=1.1.1.1
 Cluster2=2.2.3.4
 ### vCloud Director URL
 ciserver=vcd.yourcloud.com
-### vCenter folder to import VMs into for vCenter_AddAllVMsfromDatastore.ps1
-VMImportFolder=Temp
 ### SMTP Configuration
 notifyto=engineering@yourplace.com
 notifyfrom=vCenterHA@overhere.com

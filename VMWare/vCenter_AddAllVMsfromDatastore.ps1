@@ -1,6 +1,6 @@
 # User Input
 $Cluster = Read-Host -Prompt 'What vCenter Cluster are you adding VMs to?'
-$Datastores = Read-Host -Prompt 'What is the name of the datastore you want the VMs added from?'
+$Datastores = Read-Host -Prompt 'What is the name of the datastore you want the VM(s) added from?'
 
 # Import custom VMWare Functions
 Import-Module $PSScriptRoot\VMWare_Functions.psm1
@@ -12,7 +12,7 @@ Get-VMWConfig
 Connect-vSphere -viserver $Global:vmwconfig.$cluster
 
 # Select an ESXi host to own the VMX files for the import process:
-$ESXHost = Get-Cluster $Config.$Cluster | Get-VMHost | Select-Object -First 1
+$ESXHost = Get-Cluster $Config.$Cluster | Get-VMHost | Get-Random
 
 ##Add .VMX (Virtual Machines) to Inventory from Datastore
 foreach($Datastore in $Datastores) {
@@ -22,10 +22,10 @@ foreach($Datastore in $Datastores) {
     $SearchSpec.matchpattern = "*.vmx"
     $dsBrowser = Get-View $ds.browser
     $DatastorePath = "[" + $ds.Summary.Name + "]"
-     
+
     # Find all .VMX file paths in Datastore variable and filters out .snapshot
     $SearchResult = $dsBrowser.SearchDatastoreSubFolders($DatastorePath, $SearchSpec) | Where-Object {$_.FolderPath -notmatch ".snapshot"} | ForEach-Object {$_.FolderPath + ($_.File | Select-Object Path).Path}
-     
+
     # Register all .VMX files with vCenter
     foreach($VMXFile in $SearchResult) {
         New-VM -VMFilePath $VMXFile -VMHost $ESXHost -Location $config.VMFolder -RunAsync

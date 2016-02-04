@@ -1,6 +1,6 @@
 #SVM Configuratino Variables
 Write-Host "Loading Configuratino Variables..." -foregroundcolor "green"
-    $site_id =	Read-Host -Prompt 'What Site are you adding SnapMirrors to (PHL-07, PHL-14 or PHX-55)?'
+    $site_id =	Read-Host -Prompt 'What Site are you adding SnapMirrors to?'
     $cust_id =	Read-Host -Prompt 'What Client are these new SnapMirrors for? (use the 3 character client ID)'
     $cust_svm = Read-Host -Prompt 'What is the destination SVM Name?'
     $agg = Read-Host -Prompt 'What Aggregate should the snapmirror volumes be placed on?'

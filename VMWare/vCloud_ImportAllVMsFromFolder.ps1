@@ -1,5 +1,6 @@
 # User Input
 $Cluster = Read-Host -Prompt 'What vCenter Cluster are you importing from?'
+$VMImportFolder = Read-Host -Prompt 'What folder do you want the VM(s) imported from?'
 $orgvdc = Read-Host -Prompt 'What Org vDC are you importing to?'
 #$cinetwork = Read-Host -Prompt 'What Org VDC Network should these VMs belong to?'
 
@@ -16,9 +17,9 @@ Connect-vSphere -viserver $Global:vmwconfig.$cluster
 Connect-vCloud -ciserver $Global:vmwconfig.ciserver
 
 
-$vms = get-folder $config.VMImportFolder | get-vm
+$vms = get-folder $VMImportFolder | get-vm
 
-foreach ($vm in $vms) { 
+foreach ($vm in $vms) {
 	Write-Host "Importing $vm" -foregroundcolor "Green"
 	new-civapp -name $vm -orgvdc $orgvdc -ErrorAction Stop | out-null
 	get-civapp $vm | Import-CIVApp $vm -NoCopy:$False -RunAsync -ErrorAction Stop | out-null

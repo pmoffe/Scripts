@@ -55,7 +55,6 @@ else {
 # Build guest OS credentials
 $hostname = (get-vm $VMName).extensiondata.Guest.HostName
 $username = "$hostname\Administrator"
-#$password = ConvertTo-SecureString -String $MachinePass -AsPlainText -Force
 $GuestOSCred = New-Object -typename System.Management.Automation.PSCredential -argumentlist $username, $password
 
 # Update VMware tools if needed
@@ -102,7 +101,7 @@ until( Test-Connection $vmip -Quiet | Where-Object { $True } )
 #Start-Sleep 1800
 
 # Restart VMGuest one more time in case Windows Update requires it and for whatever reason the -AutoReboot switch didn't complete it.
-Write-Host "Performing final reboot of $VMName" -foregroundcolor "Green"
+Write-Host "`r`nPerforming final reboot of $VMName" -foregroundcolor "Green"
 Restart-VMGuest -VM $VMName -Confirm:$false | Out-Null
 
 do {
@@ -142,6 +141,6 @@ If ($WasTemplate) {
 # Set note with last updated date
 set-VM -VM $VMName -Notes "VM Last Updated $(Get-Date)" -Confirm:$false | Out-Null
 
-Write-Host "Finished updating $VMName" -foregroundcolor "Magenta"
+Write-Host "`r`nFinished updating $VMName" -foregroundcolor "Magenta"
 
-Write-Output "Script Finished $(Get-Date)"
+Write-Output "`r`nScript Finished $(Get-Date)"
