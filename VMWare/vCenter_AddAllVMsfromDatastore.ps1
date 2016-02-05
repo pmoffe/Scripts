@@ -1,6 +1,7 @@
 # User Input
 $Cluster = Read-Host -Prompt 'What vCenter Cluster are you adding VMs to?'
 $Datastores = Read-Host -Prompt 'What is the name of the datastore you want the VM(s) added from?'
+$VMFolder = Read-Host -Prompt 'What vCenter folder do you want the VMs placed into?'
 
 # Import custom VMWare Functions
 Import-Module $PSScriptRoot\VMWare_Functions.psm1
@@ -28,6 +29,6 @@ foreach($Datastore in $Datastores) {
 
     # Register all .VMX files with vCenter
     foreach($VMXFile in $SearchResult) {
-        New-VM -VMFilePath $VMXFile -VMHost $ESXHost -Location $config.VMFolder -RunAsync
+        New-VM -VMFilePath $VMXFile -VMHost $ESXHost -Location $VMFolder -RunAsync
     }
 }
