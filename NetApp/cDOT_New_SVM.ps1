@@ -7,7 +7,7 @@ To-Do:
 #>
 
 <#-----------------------------------------
-Have customer run the following command to get you info about their existing SVM configuration
+ Have client run the following command to get you info about their existing SVM configuration
  vserver show -vserver [vserver name] -type data -fields ns-switch,nm-switch,language,rootvolume-security-style,allowed-protocols
  vserver services dns show
  network interface show -role intercluster
@@ -19,13 +19,13 @@ Write-Host "Loading Configuratino Variables..." -foregroundcolor "green"
 #Site ID (Must match sites in config file)
 $site_id =	""
 
-#3-letter customer identifier
+#3-letter Client identifier
 $cust_id =	""
 
 #VLAN id (Leave blank for FCP-Only SVM)
-$cust_vlan_id = ""			
+$cust_vlan_id = ""
 
-#VLAN MTU - Should match customer's SVM MTU if replicating (1500 is default)
+#VLAN MTU - Should match client's SVM MTU if replicating (1500 is default)
 $cust_vlan_mtu = "1500"
 
 #SVM name. (Script will prepend "$site_id_$cust_id_ to match standard naming)
@@ -37,24 +37,24 @@ $svm_protos = ""
 #Aggregate for SVM root volume
 $svm_root_aggr = ""
 
-#Root Volume Security - Data from customer
+#Root Volume Security - Data from client
  # If this is a hosted SVM:
  # security will vary based on how you're accessing the volumes
  # unix = NFS, iSCSI, and/or FC/FCoE
  # ntfs = CIFS/SMB
  # mixed = all of the above
-$svm_rootvol_sec = "unix"	    		
+$svm_rootvol_sec = "unix"
 
-#SVM Language - Data from customer
+#SVM Language - Match data from client
  # If this is a hosted SVM C.UTF-8
  # is a good default if unsure
 $svm_lang = "C.UTF-8"
 
-#SVM NS Switch - Data from customer
+#SVM NS Switch - Match data from client
  # Use "file" if unsure
 $svm_ns_switch = "file"
 
-#SVM NM Switch - Data from customer
+#SVM NM Switch - Match data from client
  # Use "file" if unsure
 $svm_nm_switch = "file"
 
@@ -62,28 +62,28 @@ $svm_nm_switch = "file"
 $svm_domain	= ""
 
 #SVM DNS server(s) - Comma separated (should be 1.1.1.1,2.2.2.2 without quotes)
-$svm_dns = 
+$svm_dns =
 
 #SVM Default IP Gateway (leave blank if not required)
 $svm_gw = ""
 
 #SVM Management LIF (Leave IP blank if not required)
-$mgmt_lif_ip = ""			    #Data LIF IP in customer SVM
-$mgmt_lif_netmask = "255.255.255.0"	 		#Data LIF netmask in customer SVM - in format "255.255.255.0"
+$mgmt_lif_ip = ""			    #Data LIF IP in client SVM
+$mgmt_lif_netmask = "255.255.255.0"	 		#Data LIF netmask in client SVM - in format "255.255.255.0"
 $mgmt_lif_home_port = "e0h-$cust_vlan_id"	#Data LIF home port - Options are: e0g or e0h (default is e0h)
 
 #NFS LIFs (Leave IP blank if not required)
-$nfs_lif00_ip = ""		    #Data LIF IP in customer SVM
-$nfs_lif00_netmask = "255.255.255.0"	 		#Data LIF netmask in customer SVM - in format "255.255.255.0"
-$nfs_lif01_ip = ""		    #Data LIF IP in customer SVM
-$nfs_lif01_netmask = "255.255.255.0"	 		#Data LIF netmask in customer SVM - in format "255.255.255.0"
+$nfs_lif00_ip = ""		    #Data LIF IP in client SVM
+$nfs_lif00_netmask = "255.255.255.0"	 		#Data LIF netmask in client SVM - in format "255.255.255.0"
+$nfs_lif01_ip = ""		    #Data LIF IP in client SVM
+$nfs_lif01_netmask = "255.255.255.0"	 		#Data LIF netmask in client SVM - in format "255.255.255.0"
 $nfs_lif_home_port = "e0h-$cust_vlan_id"	#Data LIF home port - Options are: e0g or e0h (default is e0h)
 
 #CIFS LIFs (Leave IP blank if not required)
-$cifs_lif_ip = ""		    #Data LIF IP in customer SVM
-$cifs_lif_netmask = "255.255.255.0"	 		#Data LIF netmask in customer SVM - in format "255.255.255.0"
+$cifs_lif_ip = ""		    #Data LIF IP in client SVM
+$cifs_lif_netmask = "255.255.255.0"	 		#Data LIF netmask in client SVM - in format "255.255.255.0"
 $cifs_lif_home_port = "e0h-$cust_vlan_id"	#Data LIF home port - Options are: e0g or e0h (default is e0h)
-$cifs_joindomainas = ""						#Name to join the windows domain as. Must be less than 15 characters
+$cifs_joindomainas = ""						#Hostname to join the windows domain as. Must be less than 15 characters
 
 #Intercluster LIFs (Leave IPs blank if not required)
 $ic_lif_home_port = "e0g-$cust_vlan_id"	#Intercluster LIF on node00 home port - Options are: e0g or e0h (default is e0g)
@@ -94,14 +94,14 @@ $ic_lif01_netmask = "255.255.255.0"		#Intercluster LIF on node01 netmask in form
 $ic_lif_gw = ""               #Intercluster LIF Default Gateway in format "1.2.3.4"
 
 #Cluster and vServer Peering (Leave blank if not required)
-$client_icip = ""	    #Data from customer - Customer's cDOT cluster intercluster IP (a single IC IP will work)
-$client_svm_name = ""	#Data from customer - Customer's SVM name
-$client_clus_name = ""  #Data from customer - Customer's cluster name
+$client_icip = ""	    #Data from client - client's cDOT cluster intercluster IP (a single IC IP will work)
+$client_svm_name = ""	#Data from client - client's SVM name
+$client_clus_name = ""  #Data from client - client's cluster name
 $client_passphrase = "" #Shared Password
 
-#-----------------------------------------
-#No configurable variables past this point
-#-----------------------------------------
+#-------------------------------------------#
+# No configurable variables past this point #
+#-------------------------------------------#
 
 # Import custom NetApp Functions
 Import-Module $PSScriptRoot\NetApp_Functions.psm1
@@ -136,16 +136,16 @@ $check_ipspace = Get-NcNetIpspace | Where-Object {$_.Ipspace -match "$site_id-$c
 if(-Not $check_ipspace ) {
 	Write-Host "Creating IPSpace..." -foregroundcolor "green"
 	New-NcNetIpspace "$site_id-$cust_id-00" -ErrorAction Stop
-	}
+}
 else {Write-Host "IPSpace already exists, moving on..." -foregroundcolor "Red" }
 
 #Create Broadcast Domain
 $check_broadcastdomain = Get-NcNetPortBroadcastDomain | Where-Object {$_.BroadcastDomain -match "$site_id-$cust_id-$cust_vlan_id"}
 if(-Not $check_broadcastdomain -and $cust_vlan_id ) {
 	Write-Host "Creating Broadcast Domain..." -foregroundcolor "green"
-	New-NcNetPortBroadcastDomain -Name "$site_id-$cust_id-$cust_vlan_id" -Ipspace "$site_id-$cust_id-00" -Mtu $cust_vlan_mtu 
-    
-    #Add ports to Broadcast Domain
+	New-NcNetPortBroadcastDomain -Name "$site_id-$cust_id-$cust_vlan_id" -Ipspace "$site_id-$cust_id-00" -Mtu $cust_vlan_mtu
+
+#Add ports to Broadcast Domain
 	Write-Host "Adding VLANs to Broadcast Domain..." -foregroundcolor "Green"
 	ForEach ($Node in $ClusterNodes) {
 	$node_port0 = $Node.NodeName + ":e0g-" + $cust_vlan_id
@@ -181,7 +181,7 @@ if (-Not $check_fcplif -and $svm_protos -eq "fcp") {
 	Write-Host "Starting FCP server..." -foregroundcolor "green"
 	Get-NcVserver $svm_name | Add-NcFcpService
 }
-else {Write-Host "At least one FCP LIF already exists or FCP not defined in the svm_protos variable, moving on..." -foregroundcolor "Red" }	
+else {Write-Host "At least one FCP LIF already exists or FCP not defined in the svm_protos variable, moving on..." -foregroundcolor "Red" }
 
 #Create MGMT DATA LIF IP
 $check_datalif = Get-NcNetInterface | where-object {$_.InterfaceName -like "$site_id-$cust_id-MGMT-*"}
@@ -191,14 +191,16 @@ if(-Not $check_datalif -and $mgmt_lif_ip ) {
 }
 else {Write-Host "At least one MGMT LIF already exists or MGMT LIF IP variable not defined, moving on..." -foregroundcolor "Red" }
 
-#Create NFS DATA LIFs
+#Create NFS-00 DATA LIFs
 $check_nfslif0 = Get-NcNetInterface | where-object {$_.InterfaceName -like "$site_id-$cust_id-NFS-00"}
-$check_nfslif1 = Get-NcNetInterface | where-object {$_.InterfaceName -like "$site_id-$cust_id-NFS-01"}
 if(-Not $check_nfslif0 -and $nfs_lif00_ip ) {
 	Write-Host "Creating new InterCluster LIF Interface on Node0..." -foregroundcolor "green"
 	New-NcNetInterface -Name "$site_id-$cust_id-NFS-00" -Vserver $svm_name -FailoverGroup "$site_id-$cust_id-$cust_vlan_id" -Role data -Node $ClusterNode0.NodeName -Port $nfs_lif_home_port -Address $nfs_lif00_ip -Netmask $cifs_lif_netmask -DataProtocols nfs -AutoRevert 1
 }
 else {Write-Host "At least one NFS-00 LIF already exists or NFS LIF-00 IP variable not defined, moving on..." -foregroundcolor "Red" }
+
+#Create NFS-01 DATA LIFs
+$check_nfslif1 = Get-NcNetInterface | where-object {$_.InterfaceName -like "$site_id-$cust_id-NFS-01"}
 if(-Not $check_nfslif1 -and $nfs_lif01_ip ) {
 	Write-Host "Creating new InterCluster LIF Interface on Node1..." -foregroundcolor "green"
 	New-NcNetInterface -Name "$site_id-$cust_id-NFS-01" -Vserver $svm_name -FailoverGroup "$site_id-$cust_id-$cust_vlan_id" -Role data -Node $ClusterNode1.NodeName -Port $nfs_lif_home_port -Address $nfs_lif01_ip -Netmask $cifs_lif_netmask -DataProtocols nfs -AutoRevert 1
@@ -228,7 +230,7 @@ if(-Not $check_intercluster -and ($ic_lif00_ip -and $ic_lif01_ip ) ) {
         Write-Host "Setting IPSpace Default Gateway..." -ForegroundColor "green"
         New-NcNetRoute -destination 0.0.0.0/0 -gateway $ic_lif_gw -vservercontext "$site_id-$cust_id-00"
     }
-    else {Write-Host "InterCluster LIF Gateway already set or variable notdefined, moving on..." -ForegroundColor "Red"}
+    else {Write-Host "InterCluster LIF Gateway already set or variable not defined, moving on..." -ForegroundColor "Red"}
 }
 else {Write-Host "At least one InterCluster LIF already exists or LIF IP variables not defined, moving on..." -foregroundcolor "Red" }
 
@@ -237,29 +239,26 @@ $check_svmgw = get-ncnetroute | where-object {$_.Vserver -like $svm_name}
 if(-Not $check_svmgw -and $svm_gw) {
 	Write-Host "Setting SVM Default Gateway..." -foregroundcolor "green"
 	New-NcNetRoute -destination 0.0.0.0/0 -gateway $svm_gw -vservercontext $svm_name
-    
 }
 else {Write-Host "Default gateway already set or variable not defined, moving on..." -foregroundcolor "Red" }
 
 #Set-up Cluster and vServer Peering
 if(($client_icip -and $client_passphrase) -or ($client_svm_name -and $client_clus_name)) {
-    
+
     $check_clusterpeer = Get-NcClusterPeer | Where-Object {$_.ClusterName -like $client_clus_name}
     if( -Not $check_clusterpeer -and $client_passphrase -and $client_icip){
         Write-Host "Creating Cluster Peer Relatinoship..." -ForegroundColor "Green"
         Add-NcClusterPeer -Address $client_icip -Passphrase $client_passphrase -IpspaceName "$site_id-$cust_id-00"
     }
     else {Write-Host "Cluster peer already exists or client Cluster name or LIF IP variables missing. Moving on..." -ForegroundColor "Red" }
-    
+
     $check_vserverpeer = Get-NcVserverPeer | Where-Object {$_.PeerVserver -like $client_svm_name}
     if( -Not $check_vserverpeer -and $svm_name -and $client_clus_name -and $client_svm_name) {
         Write-Host "Creating vServer Peer Relationship..." -ForegroundColor "Green"
-        New-NcVserverPeer -vserver $svm_name -PeerVserver $client_svm_name -Application snapmirror -PeerCluster $client_clus_name 
+        New-NcVserverPeer -vserver $svm_name -PeerVserver $client_svm_name -Application snapmirror -PeerCluster $client_clus_name
     }
     else {Write-Host "vServer peer already exists or client vserver/cluster variables not set.  Moving on..." -ForegroundColor "Red" }
 }
 else {Write-Host "No client cluster, vserver or IC LIF variables set, moving on..." -foregroundcolor "Red" }
 
 Write-Host "Done." -foregroundcolor "Magenta"
-
-#End
