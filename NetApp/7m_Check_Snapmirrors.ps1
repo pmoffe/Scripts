@@ -14,6 +14,7 @@ $notifyto = $Global:naconfig.notifyto -split ","
 
 # Check SnapMirror Status
 $smstatus = ForEach ($filer in $filers) {
+
     #Connect to NetApp as root
     Connect-NaController $filer -Credential $cred | Out-Null
 
@@ -24,7 +25,7 @@ $smstatus = ForEach ($filer in $filers) {
         ForEach ($vfiler in $vfilers) {
 		    Connect-NaController $filer -vfiler "$vfiler" | Out-Null
 		    Get-NaSnapmirror -WarningAction SilentlyContinue | Select-Object DestinationLocation,SourceLocation,LagTime,LagTimeTS | Where-Object {$_.LagTime -gt $Global:naconfig.smlag} | Select-Object DestinationLocation,SourceLocation,LagTimeTS
-		}
+		    }
 }
 
 #Send email report
@@ -35,9 +36,9 @@ if ($smstatus) {
 	$style = $style + "TH{border-width: 1px;text-align: center;padding: 2px;border-style: solid;border-color: black;background-color:#D3D3D3 }"
 	$style = $style + "TD{border-width: 1px;text-align: center;padding: 2px;border-style: solid;border-color: black;background-color:#FFFFFF }"
 	$style = $style + "</style>"
-   
-    $body = $smstatus | ConvertTo-Html -Head $style | Out-String 
-    
+
+    $body = $smstatus | ConvertTo-Html -Head $style | Out-String
+
     Send-MailMessage -From $Global:naconfig.notifyfrom -To $notifyto -Subject "7Mode SnapMirror Issues Found!" -SmtpServer $Global:naconfig.smtpserver -BodyAsHtml $body
     }
 else {
