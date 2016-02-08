@@ -11,19 +11,36 @@ function Get-NAConfig {
 	    	}
 }
 
-function Connect-NAFiler {
+function Connect-NaFiler {
 	Param (
         $nafiler
         )
-    
-    # Import NetApp module
-	Import-Module DataONTAP
-	
+
+  # Import NetApp module
+	Import-Module DataONTAP -Global
+
 	# Connect to NetApp
-	if ($global:DefaultVIServers.name -ne $viserver) {
-		try { 
-		Write-Host "Connecting to $filer..." -foregroundcolor "green"
-		Connect-NcController $nafiler -ErrorAction Stop -Global | Out-Null }
+	if ($global:CurrentNaController.name -ne $nafiler) {
+		try {
+		Write-Host "Connecting to 7mode controller: $nafiler" -foregroundcolor "green"
+		Connect-NaController $nafiler -ErrorAction Stop }
+			catch { throw 'Could not connect to NetApp'}
+		}
+}
+
+function Connect-NcFiler {
+	Param (
+        $ncfiler
+        )
+
+  # Import NetApp module
+	Import-Module DataONTAP -Global
+
+	# Connect to NetApp
+	if ($global:CurrentNcController.name -ne $ncfiler) {
+		try {
+		Write-Host "Connecting to cDOT controller: $ncfiler" -foregroundcolor "green"
+		Connect-NcController $ncfiler -ErrorAction Stop }
 			catch { throw 'Could not connect to NetApp'}
 		}
 }
