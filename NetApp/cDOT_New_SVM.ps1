@@ -110,7 +110,7 @@ Import-Module $PSScriptRoot\NetApp_Functions.psm1
 Get-NAConfig
 
 # Connect to NetApp
-Connect-NAFiler -nafiler $Global:naconfig.$site_id
+Connect-NcFiler -ncfiler $Global:naconfig.$site_id
 
 # Set internal variables
 Write-Host "Loading Internal Variables..." -foregroundcolor "green"
