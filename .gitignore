@@ -2,3 +2,4 @@
 *.config
 *.log
 *.csv
+*.save.*
