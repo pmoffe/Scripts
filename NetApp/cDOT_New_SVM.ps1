@@ -194,7 +194,7 @@ else {Write-Host "At least one MGMT LIF already exists or MGMT LIF IP variable n
 #Create NFS-00 DATA LIFs
 $check_nfslif0 = Get-NcNetInterface | where-object {$_.InterfaceName -like "$site_id-$cust_id-NFS-00"}
 if(-Not $check_nfslif0 -and $nfs_lif00_ip ) {
-	Write-Host "Creating new InterCluster LIF Interface on Node0..." -foregroundcolor "green"
+	Write-Host "Creating new NFS LIF Interface on Node0..." -foregroundcolor "green"
 	New-NcNetInterface -Name "$site_id-$cust_id-NFS-00" -Vserver $svm_name -FailoverGroup "$site_id-$cust_id-$cust_vlan_id" -Role data -Node $ClusterNode0.NodeName -Port $nfs_lif_home_port -Address $nfs_lif00_ip -Netmask $cifs_lif_netmask -DataProtocols nfs -AutoRevert 1
 }
 else {Write-Host "At least one NFS-00 LIF already exists or NFS LIF-00 IP variable not defined, moving on..." -foregroundcolor "Red" }
@@ -202,7 +202,7 @@ else {Write-Host "At least one NFS-00 LIF already exists or NFS LIF-00 IP variab
 #Create NFS-01 DATA LIFs
 $check_nfslif1 = Get-NcNetInterface | where-object {$_.InterfaceName -like "$site_id-$cust_id-NFS-01"}
 if(-Not $check_nfslif1 -and $nfs_lif01_ip ) {
-	Write-Host "Creating new InterCluster LIF Interface on Node1..." -foregroundcolor "green"
+	Write-Host "Creating new NFS LIF Interface on Node1..." -foregroundcolor "green"
 	New-NcNetInterface -Name "$site_id-$cust_id-NFS-01" -Vserver $svm_name -FailoverGroup "$site_id-$cust_id-$cust_vlan_id" -Role data -Node $ClusterNode1.NodeName -Port $nfs_lif_home_port -Address $nfs_lif01_ip -Netmask $cifs_lif_netmask -DataProtocols nfs -AutoRevert 1
 }
 else {Write-Host "At least one NFS-01 LIF already exists or NFS LIF-01 IP variable not defined, moving on..." -foregroundcolor "Red" }
