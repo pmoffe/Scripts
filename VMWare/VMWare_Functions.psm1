@@ -23,15 +23,17 @@ function Connect-VSphere {
 			{ Import-Module -Name VMware.VimAutomation.Core -ErrorAction Stop -Global
 			# Write-Output "PowerCLI 6+ module imported"
 			}
-		5 { Add-PSSnapin -Name VMware.VimAutomation.Core -ErrorAction Stop
-			Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version'
+		5 {
+		#	Add-PSSnapin -Name VMware.VimAutomation.Core -ErrorAction Stop
+			Write-Warning -Message 'PowerCLI version 6 or later required, you appear to have version 5. Please upgrade.'
+			exit
 			}
 		default {
 			throw 'This script requires PowerCLI version 5 or later'
 			}
 		}
 	}
-	catch { throw 'Could not load the required VMware.VimAutomation.Vds cmdlets'}
+	catch { throw 'Could not load the required VMware cmdlets, do you have PowerCLI version 6 or later installed?'}
 
 	# Ignore self-signed SSL certificates for vCenter Server
 	$null = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -DisplayDeprecationWarnings:$false -Scope User -Confirm:$false
@@ -55,16 +57,17 @@ function Connect-VCloud {
             Import-Module -Name VMware.VimAutomation.Cloud -ErrorAction Stop -Global
 			}
 		5 {
-            Add-PSSnapin -Name VMware.VimAutomation.Vds -ErrorAction Stop
-            Add-PSSnapin -Name VMware.VimAutomation.Cloud -ErrorAction Stop
-			Write-Warning -Message 'PowerCLI 5 snapin added; recommend upgrading your PowerCLI version. This has not been tested!'
+    #        Add-PSSnapin -Name VMware.VimAutomation.Vds -ErrorAction Stop
+    #        Add-PSSnapin -Name VMware.VimAutomation.Cloud -ErrorAction Stop
+			Write-Warning -Message 'PowerCLI version 6 or later required, you appear to have version 5. Please upgrade.'
+			exit
 			}
 		default {
 			throw 'This script requires PowerCLI version 5 or later'
 			}
 		}
 	}
-	catch { throw 'Could not load the required VMware.VimAutomation cmdlets'}
+	catch { throw 'Could not load the required VMware cmdlets, do you have PowerCLI version 6 or later installed?'}
 
 	# Ignore self-signed SSL certificates for vCenter Server
 	$null = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -DisplayDeprecationWarnings:$false -Scope User -Confirm:$false
