@@ -13,7 +13,7 @@ Get-VMWConfig
 Connect-vSphere -viserver $Global:vmwconfig.$cluster
 
 # Select an ESXi host to own the VMX files for the import process:
-$ESXHost = Get-Cluster $Config.$Cluster | Get-VMHost | Get-Random
+$ESXHost = Get-Cluster $Cluster | Get-VMHost | Get-Random
 
 ##Add .VMX (Virtual Machines) to Inventory from Datastore
 foreach($Datastore in $Datastores) {
