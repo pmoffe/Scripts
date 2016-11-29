@@ -17,8 +17,6 @@ A collection of Scripts I've created to help automate some day-to-day 'Sys Admin
     * This is a functions file that is required for most if not all of my scripts.  Common processes have been consolidated into functions that can be called from multiple scripts.
   - NetApp.config
     * Configuration file that gets called from most if not all of my scripts.  Common configuration items are stored here.
-- **Sandbox**
-  - Just a bunch of random scripts that I've saved as reference.
 - **VMware**
   - vCenter_AddAllVMsfromDatastore
     *
