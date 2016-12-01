@@ -1,12 +1,14 @@
-$vCenters = Read-Host -Prompt 'What vCenter do you want to check?'
-
-# Import custom VMWare Functions
-Import-Module $PSScriptRoot\VMWare_Functions.psm1
+param (
+   [Parameter(Mandatory=$true, HelpMessage="What vCenter(s) do you want to check?")]
+   [ValidateNotNullorEmpty()]
+   [string[]]
+   $vCenters
+)
 
 Foreach ($vCenter in $vCenters) {
 
   # Connect to vCenter
-  Connect-viserver $vCenter
+  Connect-viserver $vCenter | Out-Null
 
   Foreach ($vmhost in Get-VMHost) {
        $esxcli = Get-EsxCli -vmhost $vmhost
