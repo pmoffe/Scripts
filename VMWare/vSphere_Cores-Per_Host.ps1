@@ -1,17 +1,13 @@
-$vCenters = @()
-$vCenters = 
-
-# Import custom VMWare Functions
-Import-Module $PSScriptRoot\VMWare_Functions.psm1
-
-# Load VMWare Configuration File
-Get-VMWConfig
-
-#$vServers
+param (
+   [Parameter(Mandatory=$true, HelpMessage="What vCenter(s) do you want to check?")]
+   [ValidateNotNullorEmpty()]
+   [string[]]
+   $vCenters
+)
 
 $result = @()
 foreach($vCenter in $vCenters) {
-    Connect-vSphere -viserver $vCenter | Out-Null
+  Connect-viserver $vCenter | Out-Null
     $vmhost = get-vmhost
     foreach ($esxi in $vmhost) {
         $HostCPU = $esxi.ExtensionData.Summary.Hardware.NumCpuPkgs
