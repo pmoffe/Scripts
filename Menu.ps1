@@ -95,34 +95,51 @@ function NATools()
     Clear-Host  # Clear the screen.
     Write-Host -BackgroundColor Black -ForegroundColor White  "`n`t`tPowerShell Tools`t`n"
     Write-Host -BackgroundColor Black -ForegroundColor White  "`t`NetApp Tools Menu`t`t`n"
-    Write-Host "`t`t`t1 - Sub Menu 1 - Option 1"
+    Write-Host "`t`t`tnadoc - Create NetApp Documentation"
     Write-Host "`t`t`t2 - Sub Menu 2 - Option 2"
     Write-Host "`t`t`t3 - Sub Menu 3 - Option 3"
     Write-Host "`t`t`tQ --- Quit And Return To Main Menu`n"
     $subMenu = Read-Host "`t`tEnter Sub-Menu 1 Option Number"
         switch ($subMenu)
         {
-        1
-            {
-            loadSubMenu1Option1
+        nadoc {
+          if (((!(Get-Module -Name netappdocs -ErrorAction SilentlyContinue)) -and  (Get-Module -Name netappdocs -listavailable -ErrorAction SilentlyContinue)) -or (Get-Module -Name netappdocs -ErrorAction SilentlyContinue)) {
+            import-module netappdocs
             }
-        2
-            {
-            #loadSubMenu2
-            }
-        3
-            {
+          else {
+            Clear-Host
+            Write-Host -BackgroundColor Red -ForegroundColor White "`n`n`nNetApp Docs is not installed or is an old version, please install/upgrade!`n`n"
+            pause
+            $loopSubMenu = $false
+          }
+          if (!$NACredential) {
+            Write-Host "Please enter your NetApp credentials"
+            $NACredential = Get-Credential
+          }
+
+          $NAs = (read-host "Enter a comma-separated list of NetApp Clusters (cDOT) or Controllers (7Mode):") -split ","
+
+          foreach ($NA in $NAs) {
+            Write-Host "Starting $NA"
+            Get-NtapClusterData -Name $NAs -credential $NACredential -verbose | Format-NtapClusterData | Out-NtapDocument -WordFile c:\"$na".docx -ExcelFile c:\"$na".xlsx
+          }
+
+          pause
+          }
+        2 {
+
+          }
+        3 {
             #loadSubMenu3
-            }
-        q
-            {
+          }
+        q {
                 $loopSubMenu = $false
-            }
+          }
     default
-            {
+          {
             Write-Host -BackgroundColor Red -ForegroundColor White "You did not enter a valid sub-menu selection. Please enter a valid selection."
             sleep -Seconds 1
-            }
+          }
         }
     }
 }
