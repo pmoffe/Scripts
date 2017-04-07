@@ -1,15 +1,15 @@
 ### Note:
 ### To Manually find a URL for a storage polociy, run "Search-Cloud -querytype AdminOrgVdcStorageProfile -Name "<storage-plicy-name>" | get-ciview -viewlevel admin | select Href"
 
-# Import custom VMWare Functions
-Import-Module $PSScriptRoot\VMWare_Functions.psm1
-
-# Load VMWare Configuration File
-Get-VMWConfig
+param (
+   [Parameter(Mandatory=$true, HelpMessage="What vCloud environment do you want to administer?")]
+   [ValidateNotNullorEmpty()]
+   [string[]]
+   $vCloud
+)
 
 # Connect to vCloud Director
-Write-Host 'Connecting to:' $Global:vmwconfig.ciserver
-Connect-vCloud -ciserver $Global:vmwconfig.ciserver
+Connect-CIServer $vCloud
 
 $uservm = Read-Host -Prompt 'What is the name of the VM you want to modify?'
 $harddisk = Read-Host -Prompt "What hard-disk on '$uservm' do you want to modify?"
