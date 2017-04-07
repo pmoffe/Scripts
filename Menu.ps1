@@ -117,13 +117,22 @@ function NATools()
             $NACredential = Get-Credential
           }
 
-          $NAs = (read-host "Enter a comma-separated list of NetApp Clusters (cDOT) or Controllers (7Mode):") -split ","
+          $CNAs = (read-host "Enter a comma-separated list of NetApp cDOT Arrays:") -split ","
+          $7NAs = (read-host "Enter a comma-separated list of NetApp 7-Mode Arrays:") -split ","
 
-          foreach ($NA in $NAs) {
-            Write-Host "Starting $NA"
-            Get-NtapClusterData -Name $NAs -credential $NACredential -verbose | Format-NtapClusterData | Out-NtapDocument -WordFile c:\"$na".docx -ExcelFile c:\"$na".xlsx
+          if ($CNAs) {
+            foreach ($CNA in $CNAs) {
+              Write-Host "Starting $CNA"
+              Get-NtapClusterData -Name $CNA -credential $NACredential -verbose | Format-NtapClusterData | Out-NtapDocument -WordFile c:\"$CNA".docx -ExcelFile c:\"$CNA".xlsx
+            }
           }
 
+          if ($7NAs) {
+            foreach ($7NA in $7NAs) {
+              Write-Host "Starting $7NA"
+              Get-NtapClusterData -Name $7NA -credential $NACredential -verbose | Format-NtapClusterData | Out-NtapDocument -WordFile c:\"$7NA".docx -ExcelFile c:\"$7NA".xlsx
+            }
+          }
           pause
           }
         2 {
@@ -148,7 +157,19 @@ function VCTools()
 # This section is used for Loading Main Menu Option 3, .
 {
     [bool]$loopSubMenu = $true
-    while ($loopSubMenu)
+
+    #Load the VMWare modules if not already loaded
+      if (((!(Get-Module -Name VMware.VimAutomation.Core -ErrorAction SilentlyContinue)) -and  (Get-Module -Name VMware.VimAutomation.Core -listavailable -ErrorAction SilentlyContinue)) -or (Get-Module -Name VMware.VimAutomation.Core -ErrorAction SilentlyContinue)) {
+        Invoke-Expression "& '$PSScriptRoot\Initialize-PowerCLIEnvironment.ps1'"
+        }
+      else {
+        Clear-Host
+        Write-Host -BackgroundColor Red -ForegroundColor White "`n`n`nPowerCLI not installed or is an old version, please install/upgrade!`n`n"
+        pause
+        $loopSubMenu = $false
+      }
+
+  while ($loopSubMenu)
     {
     $Host.UI.RawUI.WindowTitle = "vCloud Tools Menu"
     Clear-Host  # Clear the screen.
@@ -167,7 +188,7 @@ function VCTools()
             }
         2
             {
-            #loadSubMenu2
+              #loadSubMenu2
             }
         3
             {
@@ -209,7 +230,7 @@ function VITools() {
     Write-Host -BackgroundColor Black -ForegroundColor White  "`n`t`tPowerShell Tools`t`n"
     Write-Host -BackgroundColor Black -ForegroundColor White  "`t`VMWare Tools Menu`t`t`n"
     Write-Host "`t`t`t1 - Sub Menu 1 - Option 1"
-    Write-Host "`t`t`t2 - Sub Menu 2 - Option 2"
+    Write-Host "`t`t`t2 - Change a VM(s) UUID"
     Write-Host "`t`t`t3 - Check Hosts for the NetApp VAAI Plugin"
     Write-Host "`t`t`t4 - Count CPU Cores for all ESXi Hosts"
     Write-Host "`t`t`tQ --- Quit And Return To Main Menu`n"
@@ -220,7 +241,9 @@ function VITools() {
             loadSubMenu1Option1
             }
         2 {
-            #loadSubMenu2
+            Clear-Host
+            Invoke-Expression "& '$PSScriptRoot\VMWare\vSphere_GenerateNewUUID.ps1'"
+            Pause
             }
         3 {
             Clear-Host
