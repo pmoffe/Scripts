@@ -121,7 +121,7 @@ $ClusterNode0 = get-ncclusternode | where-object {$_.NodeName -like "*c00n00"} |
 $ClusterNode1 = get-ncclusternode | where-object {$_.NodeName -like "*c00n01"} | Select-Object NodeName
 
 #Create VLAN
-$check_vlan = Get-NcNetPortVlan | Where-Object {$_.InterfaceName -match $cust_vlan_id}
+$check_vlan = Get-NcNetPortVlan | Where-Object {$_.VlanID -eq $cust_vlan_id}
 if(-Not $check_vlan -and $cust_vlan_id ){
 ForEach ($Node in $ClusterNodes){
 	Write-Host "Creating VLANs on $Node..." -foregroundcolor "green"
@@ -140,7 +140,7 @@ if(-Not $check_ipspace ) {
 else {Write-Host "IPSpace already exists, moving on..." -foregroundcolor "Red" }
 
 #Create Broadcast Domain
-$check_broadcastdomain = Get-NcNetPortBroadcastDomain | Where-Object {$_.BroadcastDomain -match "$site_id-$cust_id-$cust_vlan_id"}
+$check_broadcastdomain = Get-NcNetPortBroadcastDomain | Where-Object {$_.BroadcastDomain -eq "$site_id-$cust_id-$cust_vlan_id"}
 if(-Not $check_broadcastdomain -and $cust_vlan_id ) {
 	Write-Host "Creating Broadcast Domain..." -foregroundcolor "green"
 	New-NcNetPortBroadcastDomain -Name "$site_id-$cust_id-$cust_vlan_id" -Ipspace "$site_id-$cust_id-00" -Mtu $cust_vlan_mtu
