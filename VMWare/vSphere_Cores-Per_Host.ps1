@@ -6,6 +6,8 @@ param (
 )
 
 $result = @()
+disconnect-viserver * -Confirm:$false | Out-Null
+
 foreach($vCenter in $vCenters) {
   Connect-viserver $vCenter | Out-Null
     $vmhost = get-vmhost
@@ -18,11 +20,11 @@ foreach($vCenter in $vCenters) {
         $obj | Add-Member -MemberType NoteProperty -Name Corepersocket -Value $HostCPUcore
         $result += $obj
     }
-    disconnect-viserver -Confirm:$false
+    disconnect-viserver * -Confirm:$false | Out-Null
 }
 
 $result | format-table name,CPUSocket,Corepersocket -AutoSize
 
-$sum = $result.Corepersocket -join '+'
-Write-Host "Total CPU Cores:"
- Invoke-Expression $sum
+$sum = ($result.Corepersocket -join '+')
+
+Write-Host "Total CPU Cores to report to MS:" (Invoke-Expression $sum) `n
